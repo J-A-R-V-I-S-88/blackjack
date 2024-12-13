@@ -102,121 +102,91 @@ function removeSuits(card){
 for(i = 0; i < 52; i++){
     noSuits[i] = removeSuits(shuffledNumbers[i])
 }
-let playerHand = shuffledDeck[0] + ", " + shuffledDeck[2];
-let dealerHand = [shuffledDeck[1], " █"];
-let playerHandTotal
-let playerAceValues
-let playerAceSmall
-let playerAceBig
-let ace
-if(playerHand.includes("A") == true){
-    playerAceSmall = (Number(shuffledNumbers[0].slice(0,-1)) + Number(shuffledNumbers[2].slice(0,-1)));
-    playerAceBig = Number(playerAceSmall) + 10;
-    playerAceValues = `${playerAceSmall}` + ` or ${playerAceBig}`
-    ace = true
-} else {
-    playerHandTotal = Number(shuffledNumbers[0].slice(0,-1)) + Number(shuffledNumbers[2].slice(0,-1));
-    ace = false
+const playerHand = [shuffledDeck[0], shuffledDeck[2]];
+const playerHandRaw = [noSuits[0], noSuits[2]];
+const dealerHand = [shuffledDeck[1], " █"];
+const dealerHandRaw = [noSuits[1]];
+function addArrayElements(inputArray){
+    let total = 0
+    for(i = 0; i < inputArray.length; i++){
+        total += Number(inputArray[i]);
+    }
+    return total;
+} // addArrayElements() adds the elements in an array (assuming each element is an integer)
+// A game with no aces uses the hard total. A game with aces uses both.
+let hardTotal = addArrayElements(playerHandRaw);
+let softTotal = hardTotal - 10;
+function getDecision(){
+    return prompt(
+        `Please type your decision. You may hit or stand:
+        Dealer's hand: ${dealerHand}, (${dealerHandRaw})
+        Your hand: ${playerHand}, (${hardTotal})`
+        ).trim().toLowerCase();
 }
-let dealerHandTotal = Number(shuffledNumbers[1].slice(0,-1));
-function getHumanChoiceAce(){
-    if(playerAceBig <= 21){
-        prompt(`Please type your option. You may hit or stand.
-            Dealer's hand: ${dealerHand} (${dealerHandTotal})
-            Your hand: ${playerHand} (${playerAceValues})`)
-    } else {
-        playerHandTotal = playerAceSmall
-        prompt(`Please type your option. You may hit or stand.
-            Dealer's hand: ${dealerHand} (${dealerHandTotal})
-            Your hand: ${playerHand} (${playerHandTotal})`)
+let ply = 4;
+let decision;
+hardTotal = addArrayElements(playerHandRaw);
+let bust = true
+while(bust == true){
+    decision = getDecision();
+    if(decision == "hit"){
+        hardTotal += Number(noSuits[ply]);
+        playerHand.push(shuffledDeck[ply]);
+        ply++;
+        if(hardTotal == 21){
+            alert(hardTotal);
+        } else if(hardTotal < 21){
+            continue;
+        } else if(hardTotal > 21){
+            alert(`${hardTotal}. Bust.`);
+        }
+    } else if(decision == "stand"){
+        dealerHand.push(shuffledDeck[3]);
+        dealerHandRaw.push(noSuits[3]);
+        removeFromArray(dealerHand, " █")
+        dealerHardTotal = addArrayElements(dealerHandRaw);
+            while(dealerHardTotal < 17){
+                dealerHand.push(shuffledDeck[ply]);
+                dealerHandRaw.push(noSuits[ply]);
+                dealerHardTotal = addArrayElements(dealerHandRaw);
+                ply++
+        }
+            if(dealerHardTotal > 21){
+                alert(
+                    `${dealerHardTotal}. Dealer busts. You win!
+                    ${dealerHand}, (${dealerHardTotal})
+                    ${playerHand}, (${hardTotal})`
+                )
+            } else if(dealerHardTotal == 21){
+                if(dealerHardTotal == hardTotal){
+                alert(
+                    `21. Dealer Stands. Push.
+                    ${dealerHand}, (${dealerHardTotal})
+                    ${playerHand}, (${hardTotal})`)
+                } else {
+                alert(
+                    `21. Dealer Stands. You lose.
+                    ${dealerHand}, (${dealerHardTotal})
+                    ${playerHand}, (${hardTotal})`
+                )
+                }
+            } else if(dealerHardTotal < 21){
+                if(dealerHardTotal == hardTotal){
+                alert(`${dealerHardTotal}. Dealer stands. Push.
+                    ${dealerHand}, (${dealerHardTotal})
+                    ${playerHand}, (${hardTotal})`)
+                } else if(dealerHardTotal > hardTotal){
+                alert(`${dealerHardTotal}. Dealer stands. You lose.
+                    ${dealerHand}, (${dealerHardTotal})
+                    ${playerHand}, (${hardTotal})`)
+                } else {
+                alert(
+                    `${dealerHardTotal}. Dealer stands. You win.
+                    ${dealerHand}, (${dealerHardTotal})
+                    ${playerHand}, (${hardTotal})`
+                )
+                }
+            }
+        break;
     }
 }
-function getHumanChoiceHard(){
-        prompt(`Please type your option. You may hit or stand.
-            Dealer's hand: ${dealerHand} (${dealerHandTotal})
-            Your hand: ${playerHand} (${playerHandTotal})`)
-}
-let ply = 4
-while(true){
-    if(ace == true){
-        getHumanChoice();
-    }
-}
-// let ply = 3
-// let ace = false
-// let aceTotal
-// if(ace == true){
-//     ace = true
-//     while(playerAceSmall <= 11){
-//         if(getHumanChoice() === "hit"){
-//             playerAceSmall = playerAceSmall + Number(shuffledNumbers[ply].slice(0,-1));
-//             playerAceBig = playerAceBig + Number(shuffledNumbers[ply].slice(0,-1));
-//             playerAceValues = `${playerAceSmall}` + ` or ${playerAceBig}`
-//             playerHand = playerHand + `, ${shuffledDeck[ply]}`;
-//             ply = ply + 1
-//         } else {console.log("other")};
-//     } if(playerAceSmall >= 11){
-//         playerHandTotal = playerAceSmall;
-//         ace = false;
-//             while(playerHandTotal < 21){
-//                 if(getHumanChoice() === "hit"){
-//                     playerHandTotal = playerHandTotal + Number(shuffledNumbers[ply].slice(0,-1));
-//                     playerHand = playerHand + `, ${shuffledDeck[ply]}`;
-//                     ply = ply + 1
-//                     if(playerHand.includes("A")){
-//                         ace = true;
-//                         break
-//                     }
-//                 }
-//                     if(playerHandTotal < 21){
-
-//                     } else if(playerHandTotal == 21){
-//                         alert(
-//                         `Dealer's hand: ${dealerHand} (${dealerHandTotal})
-//                         Your hand: ${playerHand} (${playerHandTotal})`)
-//                         continue
-//                     } else if(playerHandTotal > 21){
-//                         alert(`${playerHandTotal}. Bust.
-//                         Dealer's hand: ${dealerHand} (${dealerHandTotal})
-//                         Your hand: ${playerHand} (${playerHandTotal})`
-//                         )
-//                     } else {
-//                         alert(
-//                         `Dealer's hand: ${dealerHand} (${dealerHandTotal})
-//                         Your hand: ${playerHand} (${playerHandTotal})`
-//                         )
-//                     }
-//                 }
-//     }
-// } else {
-//     while(playerHandTotal < 21){
-//         if(getHumanChoice() === "hit"){
-//             playerHandTotal = playerHandTotal + Number(shuffledNumbers[ply].slice(0,-1));
-//             playerHand = playerHand + `, ${shuffledDeck[ply]}`;
-//             ply = ply + 1
-//             aceTotal = aceTotal + Number(shuffledNumbers[ply].slice(0,-1))
-//             if(playerHand.includes("A")){
-//                 ace = true;
-//                 break
-//             }
-//         }
-//             if(playerHandTotal < 21){
-//             continue
-//             } else if(playerHandTotal == 21){
-//                 alert(
-//                 `Dealer's hand: ${dealerHand} (${dealerHandTotal})
-//                 Your hand: ${playerHand} (${playerHandTotal})`)
-//                 continue
-//             } else if(playerHandTotal > 21){
-//                 alert(`${playerHandTotal}. Bust.
-//                 Dealer's hand: ${dealerHand} (${dealerHandTotal})
-//                 Your hand: ${playerHand} (${playerHandTotal})`
-//                 )
-//             } else {
-//                 alert(
-//                 `Dealer's hand: ${dealerHand} (${dealerHandTotal})
-//                 Your hand: ${playerHand} (${playerHandTotal})`
-//                 )
-//             }
-//         }
-//     }
