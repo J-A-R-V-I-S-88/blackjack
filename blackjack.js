@@ -148,7 +148,15 @@ function softAceDecider(hand, runningTotal){
 } /* softAceDecider() will determine whether an ace is worth 1 point of 11 points towards a given score
     (designed to be flexible to player and dealer's score). */
 function getDecision(){
-    if((playerHand.includes("A♠") || playerHand.includes("A♥") || playerHand.includes("A♣") || playerHand.includes("A♦")) && (aceReverted !== true)){
+    if(addArrayElements(playerHandRaw) == 22){ // Specifies case in which player gets two aces
+        acesLow(1, playerHandRaw);
+        hardTotal -= 10;
+        grandTotal = `${hardTotal - 10} or ${hardTotal}`;
+        return prompt(`Please type your decision. You may hit or stand:
+            Dealer's hand: ${dealerHand}, (${dealerHandRaw})
+            Your hand: ${playerHand}, (${grandTotal})`
+            ).trim().toLowerCase();
+    } else if((playerHand.includes("A♠") || playerHand.includes("A♥") || playerHand.includes("A♣") || playerHand.includes("A♦")) && (aceReverted !== true)){
         return prompt(
             `Please type your decision. You may hit or stand:
             Dealer's hand: ${dealerHand}, (${dealerHandRaw})
