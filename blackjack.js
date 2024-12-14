@@ -34,7 +34,7 @@ No insurance.
     "QS","QH","QC","QD",
     "KS","KH","KC","KD",
 */
-while(true){
+while(true){ // Allows for the game to be replayed continuously.
 const orderedDeck = [
     "A♠","A♥","A♣","A♦",
     "2♠","2♥","2♣","2♦",
@@ -69,15 +69,12 @@ function randomInteger(number){
     return Math.floor(Math.random() * number)
 };
 // Creates a random variation of the ordered deck:
-const shuffledDeck = [
-
-];
+const shuffledDeck = [];
 for(let i = 0; i < 52; i++){
     let randomIndex = randomInteger(51 - i)
     shuffledDeck[i] = orderedDeck[randomIndex];
     removeFromArray(orderedDeck, orderedDeck[randomIndex]);
 };
-console.log(shuffledDeck);
 // Shuffled deck, but all letters are changed to numbers:
 const shuffledNumbers = [];
 for(let i = 0; i < 52; i++){
@@ -106,7 +103,6 @@ function acesLow(indexOn, array){
         }
     } return array;
 }
-console.log(shuffledNumbers);
 // Shuffled deck, but with no suits
 const noSuits = []
 function removeSuits(card){
@@ -119,12 +115,12 @@ const noSuitsDealer = [] // This is primarily to reset the dealer's ace values w
 for(i = 0; i < 52; i++){
     noSuitsDealer[i] = removeSuits(shuffledNumbers[i])
 }
-const playerHand = [shuffledDeck[0], shuffledDeck[2]];
-const playerHandRaw = [noSuits[0], noSuits[2]];
-const dealerHand = [shuffledDeck[1], " █"];
-const dealerHandRaw = [noSuits[1]];
-const dealerPreHand = [shuffledDeck[1], shuffledDeck[3]];
-const dealerPreHandRaw = [noSuits[1], noSuits[3]];
+const playerHand = [shuffledDeck[0], shuffledDeck[2]]; // Visual display of player's hand
+const playerHandRaw = [noSuits[0], noSuits[2]]; // Invisible display of player's hand, numerically. Used for calculations
+const dealerHand = [shuffledDeck[1], " █"]; // Visual display of dealer's hand
+const dealerHandRaw = [noSuits[1]]; // Invisible display of dealer's hand, numerically. Used for calculations
+const dealerPreHand = [shuffledDeck[1], shuffledDeck[3]]; // Dealer's actual hand. Revealed later.
+const dealerPreHandRaw = [noSuits[1], noSuits[3]]; // Invisible display of dealer's hand, numerically. Used for calculations
 function addArrayElements(inputArray){
     let total = 0
     for(i = 0; i < inputArray.length; i++){
@@ -166,26 +162,29 @@ function getDecision(){
             ).trim().toLowerCase();
     }
 }
+// getDecision() determines whether the player hits or stands.
 // End of functions. Game loop:
-let ply = 4;
+let ply = 4; // ply refers to the number of cards taken (taken from the similar idea of a "ply" in chess.)
 let decision;
 hardTotal = addArrayElements(playerHandRaw);
-let bust = true
+let bust = true /* This variable is used for the sole purpose of allowing for continuous playing without refreshing the page.
+    By changing bust to false after every hand, bust effectively acts as a continue command for the entire massive loop. */
 let twentyOnePlayer
 let dealerPreTotal = addArrayElements(dealerPreHandRaw);
 while(bust == true){
-    acesLow(noSuits.indexOf("11") + ply - 1, noSuits)
-    console.log(noSuits);
-    grandTotal = `${hardTotal - 10} or ${hardTotal}`;
-    if((hardTotal == 21) && (playerHand.length == 2)){
-        if(addArrayElements(dealerPreHandRaw) == 21){
+    acesLow(noSuits.indexOf("11") + ply - 1, noSuits) /* acesLow() is being used to replace all aces past the first one with a value of 1
+    This is because any ace after the first cannot add a value of 11 without causing a bust. */
+    grandTotal = `${hardTotal - 10} or ${hardTotal}`; // grandTotal exists specifically to allow the score to write the two possible scores with an ace
+    // Specific cases will be notated depending on if the player busts or stands, if the dealer busts or stands, and who wins.
+    if((hardTotal == 21) && (playerHand.length == 2)){ // If player has blackjack
+        if(addArrayElements(dealerPreHandRaw) == 21){ // Player blackjack, dealer blackjack - Push
             alert(
-                `Both the you and the dealer have blackjack. Push.
+                `Both you and the dealer have blackjack. Push.
                 Dealer's hand: ${dealerPreHand} (${dealerPreTotal})
                 Your hand: ${playerHand}, (${hardTotal})`);
                 bust = false
             break;
-        } else {
+        } else { // Player blackjack, dealer has no blackjack - Player wins
             alert(
                 `Blackjack! You win.
                 Dealer's hand: ${dealerPreHand} (${dealerPreTotal})
@@ -194,45 +193,44 @@ while(bust == true){
             break;
         }
     }
-    if((dealerPreTotal == 21) && (dealerHand.length == 2)){
+    if((dealerPreTotal == 21) && (dealerHand.length == 2)){ // If dealer has blackjack - Dealer wins (code above already covered blackjack for blackjack)
         alert(
             `Dealer blackjack. You lose.
             Dealer's hand: ${dealerPreHand} (${dealerPreTotal})
             Your hand: ${playerHand}, (${hardTotal})`);
             bust = false
     }
-    if(twentyOnePlayer !== true){
+    if(twentyOnePlayer !== true){ // Checks if player has a score of 21 (not necessarily a natural 21). Forces stand if so
         decision = getDecision();
     } else {
         decision = "stand"
     }
-    if(decision == "hit"){
-        playerHand.push(shuffledDeck[ply]);
-        playerHandRaw.push([ply]);
-        console.log(aceReverted);
-        if((aceReverted !== true) && (hardTotal < 21)){
+    if(decision == "hit"){ // Code that runs if player hits
+        playerHand.push(shuffledDeck[ply]); // Adds next card to player's visual display of hand
+        playerHandRaw.push([ply]); // Adds next card to player's numerical invisible display of hand
+        if((aceReverted !== true) && (hardTotal < 21)){ /* If an ace has not been redefined at 1, and if the player has not busted,
+            simply increase the total by the score of the next card. */
             hardTotal += Number(noSuits[ply]);
-            console.log(hardTotal, softTotal,)
-        } else if((aceReverted == true) && (hardTotal + Number(noSuits[ply]) > 21)){
+        } else if((aceReverted == true) && (hardTotal + Number(noSuits[ply]) > 21)){ // Player ace is 1, player busts - Dealer wins
             alert(`${hardTotal + Number(noSuits[ply])}. Bust.
                 Dealer's hand: ${dealerPreHand}, (${addArrayElements(dealerHandRaw)})
                 Your hand: ${playerHand}, (${hardTotal + Number(noSuits[ply])})`
             );
             bust = false
             break;
-        } else if((aceReverted == true) && (hardTotal + Number(noSuits[ply] < 21))){
+        } else if((aceReverted == true) && (hardTotal + Number(noSuits[ply] < 21))){ // Player ace is 1, player draws
             hardTotal += Number(noSuits[ply]);
             softTotal += Number(noSuits[ply]);
         }
-        softTotal = softAceDecider(playerHand, hardTotal);
-        console.log(hardTotal, softTotal);
-        ply++;
-        if(hardTotal == 21){
+        softTotal = softAceDecider(playerHand, hardTotal); /* Determines whether the soft total should be equal to the hard total or not
+        depending on if there is an ace. */
+        ply++; // Increasing the ply by 1 to prepare for the next card
+        if(hardTotal == 21){ // Another check for a 21 from the player
             twentyOnePlayer = true;
             continue;
         } else if(hardTotal < 21){
             continue;
-        } else if(hardTotal > 21 && softTotal > 21){
+        } else if(hardTotal > 21 && softTotal > 21){ // If the player busts both their hard and soft total
             alert(
                 `${hardTotal}. Bust.
                 Dealer's hand: ${dealerPreHand} (${addArrayElements(dealerPreHandRaw)})
@@ -240,7 +238,7 @@ while(bust == true){
             );
             bust = false
             break;
-        } else if(hardTotal > 21 && softTotal < 21){
+        } else if(hardTotal > 21 && softTotal < 21){ // If the player busts their hard total but not their soft total
             if(aceReverted == true){
                 continue;
             } else {
@@ -249,7 +247,7 @@ while(bust == true){
                 continue;
             }
         }
-    } else if(decision == "stand"){
+    } else if(decision == "stand"){ // Code that runs if the player stands
         for(let i = 0; i < 52; i++){
             function faceCardValues(card){
                 if(card.charAt(0) === "A"){
@@ -265,25 +263,25 @@ while(bust == true){
                     return card;
                 }
             }
-            shuffledNumbers[i] = faceCardValues(shuffledDeck[i]);
+            shuffledNumbers[i] = faceCardValues(shuffledDeck[i]); // This operation is rerun because of the acesLow() function previously run
         }
-        dealerHand.push(shuffledDeck[3]);
-        dealerHandRaw.push(noSuitsDealer[3]);
-        removeFromArray(dealerHand, " █")
-        let dealerHardTotal = addArrayElements(dealerHandRaw);
+        dealerHand.push(shuffledDeck[3]); // Adds next card to dealer's visual display of hand
+        dealerHandRaw.push(noSuitsDealer[3]); // Adds next card to player's numerical invisible display of hand
+        removeFromArray(dealerHand, " █") // Removes black space ("flipping over the downard")
+        let dealerHardTotal = addArrayElements(dealerHandRaw); // Recalculates dealer's hand total
             while((dealerHardTotal < 17) || ((dealerHardTotal == 17) && (dealerHandRaw.includes("11") == true))){
                 dealerHand.push(shuffledDeck[ply]);
                 dealerHandRaw.push(noSuits[ply]);
                 dealerHardTotal = addArrayElements(dealerHandRaw);
                 ply++
-        }
-            if(dealerHardTotal > 21){
+        } // Forces dealer to draw until higher than 17 OR if dealer has soft 17
+            if(dealerHardTotal > 21){ // Player stands, dealer busts - Player wins
                 alert(
                     `Dealer draws to ${dealerHardTotal} and busts. You win!
                     Dealer's hand: ${dealerHand}, (${dealerHardTotal})
                     Your hand: ${playerHand}, (${hardTotal})`)
                     bust = false
-            } else if(dealerHardTotal == 21){
+            } else if(dealerHardTotal == 21){ // Dealer draws to 21, player has 21 - Push
                 if(dealerHardTotal == hardTotal){
                     alert(
                         `Dealer draws to 21 and stands. Push.
@@ -291,24 +289,24 @@ while(bust == true){
                         Your hand: ${playerHand}, (${hardTotal})`)
                         bust = false
                 } else {
-                    alert(
+                    alert( // Player stands on < 21, dealer draws to 21 - Dealer wins
                         `Dealer draws to 21 and stands. You lose.
                         Dealer's hand: ${dealerHand}, (${dealerHardTotal})
                         Your hand:${playerHand}, (${hardTotal})`)
                         bust = false
                 }
-            } else if(dealerHardTotal < 21){
-                if(dealerHardTotal == hardTotal){
+            } else if(dealerHardTotal < 21){ // Dealer stands
+                if(dealerHardTotal == hardTotal){ // Player stands on N, dealer stands on N - Push
                     alert(`Dealer draws to ${dealerHardTotal} and stands. Push.
                         Dealer's hand: ${dealerHand}, (${dealerHardTotal})
                         Your hand: ${playerHand}, (${hardTotal})`)
                         bust = false
-                } else if(dealerHardTotal > hardTotal){
+                } else if(dealerHardTotal > hardTotal){ // Player stands on N, dealer stands > N - Dealer wins
                     alert(`Dealer draws to ${dealerHardTotal} and stands. You lose.
                         Dealer's hand: ${dealerHand}, (${dealerHardTotal})
                         Your hand: ${playerHand}, (${hardTotal})`)
                         bust = false
-                } else {
+                } else { // Player stands on N, dealer stands < N - Player wins
                     alert(
                         `Dealer draws to ${dealerHardTotal} and stands. You win!
                         Dealer's hand: ${dealerHand}, (${dealerHardTotal})
@@ -318,7 +316,7 @@ while(bust == true){
             }
         break;
     } else {
-        alert("Please type a valid option.");
+        alert("Please type a valid option."); 
     }
 }
 }
