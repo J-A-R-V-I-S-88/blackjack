@@ -34,6 +34,7 @@ No insurance.
     "QS","QH","QC","QD",
     "KS","KH","KC","KD",
 */
+while(true){
 const orderedDeck = [
     "A♠","A♥","A♣","A♦",
     "2♠","2♥","2♣","2♦",
@@ -182,12 +183,14 @@ while(bust == true){
                 `Both the you and the dealer have blackjack. Push.
                 Dealer's hand: ${dealerPreHand} (${dealerPreTotal})
                 Your hand: ${playerHand}, (${hardTotal})`);
+                bust = false
             break;
         } else {
             alert(
                 `Blackjack! You win.
                 Dealer's hand: ${dealerPreHand} (${dealerPreTotal})
                 Your hand: ${playerHand}, (${hardTotal})`);
+                bust = false
             break;
         }
     }
@@ -196,6 +199,7 @@ while(bust == true){
             `Dealer blackjack. You lose.
             Dealer's hand: ${dealerPreHand} (${dealerPreTotal})
             Your hand: ${playerHand}, (${hardTotal})`);
+            bust = false
     }
     if(twentyOnePlayer !== true){
         decision = getDecision();
@@ -214,6 +218,7 @@ while(bust == true){
                 Dealer's hand: ${dealerPreHand}, (${addArrayElements(dealerHandRaw)})
                 Your hand: ${playerHand}, (${hardTotal + Number(noSuits[ply])})`
             );
+            bust = false
             break;
         } else if((aceReverted == true) && (hardTotal + Number(noSuits[ply] < 21))){
             hardTotal += Number(noSuits[ply]);
@@ -233,6 +238,7 @@ while(bust == true){
                 Dealer's hand: ${dealerPreHand} (${addArrayElements(dealerPreHandRaw)})
                 Your hand: ${playerHand} (${hardTotal})`
             );
+            bust = false
             break;
         } else if(hardTotal > 21 && softTotal < 21){
             if(aceReverted == true){
@@ -276,34 +282,43 @@ while(bust == true){
                     `Dealer draws to ${dealerHardTotal} and busts. You win!
                     Dealer's hand: ${dealerHand}, (${dealerHardTotal})
                     Your hand: ${playerHand}, (${hardTotal})`)
+                    bust = false
             } else if(dealerHardTotal == 21){
                 if(dealerHardTotal == hardTotal){
                     alert(
                         `Dealer draws to 21 and stands. Push.
                         Dealer's hand: ${dealerHand}, (${dealerHardTotal})
                         Your hand: ${playerHand}, (${hardTotal})`)
+                        bust = false
                 } else {
                     alert(
                         `Dealer draws to 21 and stands. You lose.
                         Dealer's hand: ${dealerHand}, (${dealerHardTotal})
                         Your hand:${playerHand}, (${hardTotal})`)
+                        bust = false
                 }
             } else if(dealerHardTotal < 21){
                 if(dealerHardTotal == hardTotal){
                     alert(`Dealer draws to ${dealerHardTotal} and stands. Push.
                         Dealer's hand: ${dealerHand}, (${dealerHardTotal})
                         Your hand: ${playerHand}, (${hardTotal})`)
+                        bust = false
                 } else if(dealerHardTotal > hardTotal){
                     alert(`Dealer draws to ${dealerHardTotal} and stands. You lose.
                         Dealer's hand: ${dealerHand}, (${dealerHardTotal})
                         Your hand: ${playerHand}, (${hardTotal})`)
+                        bust = false
                 } else {
                     alert(
                         `Dealer draws to ${dealerHardTotal} and stands. You win!
                         Dealer's hand: ${dealerHand}, (${dealerHardTotal})
                         Your hand: ${playerHand}, (${hardTotal})`)
+                        bust = false
                 }
             }
         break;
+    } else {
+        alert("Please type a valid option.");
     }
+}
 }
