@@ -71,11 +71,11 @@ function randomInteger(number){
 const shuffledDeck = [
 
 ];
-// for(let i = 0; i < 52; i++){
-//     let randomIndex = randomInteger(51 - i)
-//     shuffledDeck[i] = orderedDeck[randomIndex];
-//     removeFromArray(orderedDeck, orderedDeck[randomIndex]);
-// };
+for(let i = 0; i < 52; i++){
+    let randomIndex = randomInteger(51 - i)
+    shuffledDeck[i] = orderedDeck[randomIndex];
+    removeFromArray(orderedDeck, orderedDeck[randomIndex]);
+};
 console.log(shuffledDeck);
 // Shuffled deck, but all letters are changed to numbers:
 const shuffledNumbers = [];
